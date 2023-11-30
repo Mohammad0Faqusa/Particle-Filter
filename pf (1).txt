@@ -1,0 +1,56 @@
+struct 
+{
+float x,y,theta //particle position
+float w // weight
+} PFStruct
+
+normalize(S) // sum of weights=1
+{
+sum=0
+for i=1 to 100
+	sum =sum +S[i].w
+
+for i=1 to 100
+	S[i].w=S[i].w/sum
+	
+return S
+}
+
+
+initi(S)
+{
+for i=1 to 100 
+{
+   S[i].x=random() //between min and max of the environment
+   S[i].y=random() //between min and max of the environment
+   S[i].theta=random() // between 0 and 360 
+   S[i].w=0.01 //sum of particles =1
+   }
+   return S
+}
+
+ParticleFilter(S,Z,U)
+{
+for j=1 to 100
+{
+	i=sample(S)           //sample a partile i based on its weight 
+	S[i].x=U.x
+	S[i].y=U.y
+	S[i].theta=U.theta
+	update(S[i].w,Z)
+}
+S=normalize(S)
+return S
+}
+main()
+{
+PFStruct S[100]
+
+S //array of particles
+initi(S)
+while(1)
+	{
+		S=ParticleFilter(S,Z,U) //Z: robot sensor U:command
+
+	}
+}
