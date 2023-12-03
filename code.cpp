@@ -1,5 +1,5 @@
 #include <iostream>
-#include <cstdlib>
+#include <cmath> 
 #include <ctime> 
 using namespace std;
 
@@ -20,24 +20,58 @@ float normalize(Particle* S) {
     return sum;
 }
 
-Particle* initi(Particle* S) {
+void initi(Particle* S) {
    
-
     for (int i = 0; i < 100; i++) {
-        S[i].x = rand() * 50 ; 
-        S[i].y = rand() * 100 ; 
-        S[i].theta = rand() * 360 ; 
+        S[i].x =  rand() % 100; 
+        S[i].y = rand() % 100  ; 
+        S[i].theta =  rand() % 360  ; 
         S[i].w = 0.01 ; 
     }
-    return S;
+
 }
 
+void update(Particle* S , Particle U ) {
+
+    for (int i = 0; i < 100; i++) {
+        if ((S[i].x + U.x) < 100 )   
+            S[i].x += U.x ; 
+        else 
+            S[i].x = 100 ; 
+            
+        if ((S[i].y + U.y) < 100 )   
+            S[i].y += U.y ; 
+        else 
+            S[i].y = 100 ; 
+        if (S[i].theta + U.theta > 360  ) {
+            S[i].theta +=  U.theta ;
+            S[i].theta -= 360 ; }
+        else 
+            S[i].theta += U.theta ; 
+    }
+
+    
+} 
 
 int main() {
-    Particle* S = new Particle[100] ; 
+    Particle S[100] ; 
 
 
-    S = initi(S) ; 
+    initi(S) ; 
+    for (int i = 0 ; i < 5 ; i++ ) { 
+        cout << S[i].x << " " << S[i].y << " " << S[i].theta << endl ; 
+    }
+    Particle U ; 
+    U.x = 4 ; 
+    U.y = 0 ; 
+    U.theta = 10 ; 
+    update(S , U ) ; 
+
+     for (int i = 0 ; i < 5 ; i++ ) { 
+        cout << S[i].x << " " << S[i].y << " " << S[i].theta << endl ; 
+    }
+
+    cout << "update done ! " ; 
 
     return 0 ; 
 
