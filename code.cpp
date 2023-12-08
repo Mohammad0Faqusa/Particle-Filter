@@ -23,15 +23,15 @@ float normalize(Particle* S) {
 void initi(Particle* S) {
    
     for (int i = 0; i < 100; i++) {
-        S[i].x =  rand() % 100; 
-        S[i].y = rand() % 100  ; 
+        S[i].x =  rand() % 8; 
+        S[i].y = rand() % 8  ; 
         S[i].theta =  rand() % 360  ; 
         S[i].w = 0.01 ; 
     }
 
 }
 
-void update(Particle* S , Particle U ) {
+void move(Particle* S , Particle U ) {
 
     for (int i = 0; i < 100; i++) {
         if ((S[i].x + U.x) < 100 )   
@@ -53,6 +53,20 @@ void update(Particle* S , Particle U ) {
     
 } 
 
+
+void sampleParticles(Particle* S) { 
+    Particle M [100] ; 
+    for (int i = 0 ; i < 100 ; i++ ) { 
+        M[i] = S[rand() % 100 ] ; 
+
+    }
+    for (int i = 0 ; i < 100 ; i++ ) { 
+        S[i] = M[i] ; 
+
+    }
+    
+}
+
 int main() {
     Particle S[100] ; 
 
@@ -65,7 +79,7 @@ int main() {
     U.x = 4 ; 
     U.y = 0 ; 
     U.theta = 10 ; 
-    update(S , U ) ; 
+    move(S , U ) ; 
 
      for (int i = 0 ; i < 5 ; i++ ) { 
         cout << S[i].x << " " << S[i].y << " " << S[i].theta << endl ; 
