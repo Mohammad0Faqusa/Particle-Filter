@@ -23,6 +23,7 @@ class P_filter  {
         int numberOfSequares ; 
         float sequareWidth; 
         int sizeArr ; 
+        float sumWeight ; 
 
         
         Particle* particlesArr ; 
@@ -109,18 +110,65 @@ class P_filter  {
     }
 
     void updateWeight () { 
+        for (int i = 0 ; i < sizeArr ; i++ ) { 
+            if (particlesArr[i].color == sensor.color) 
+                particlesArr[i].weight = 0.7 ;
+            else 
+                particlesArr[i].weight = 0.3 ;
 
+        sumWeight += particlesArr[i].weight ; 
+        }
     }
 
-    
+   void normalize() { 
+    for (int i = 0 ; i < sizeArr ; i++ ) { 
+        particlesArr[i].weight = particlesArr[i].weight / sumWeight ; 
+    }
+   }
+
+   void sample() { 
+        float * spacePoints = new float [sizeArr] ; 
+        float sum  = 0 ; 
+        for (int i = 0 ; i < sizeArr ; i++ ) { 
+            spacePoints[i] = sum ; 
+            sum += particlesArr[i].weight * sizeArr  ; 
+            
+        }
+        // int size2 ; 
+
+        // if (sizeArr > 0 && sizeArr <= 10)
+        // size2 = sizeArr ; 
+        // else 
+        // int size2 = sizeArr - 10  ; 
+
+        float r ; 
+        Particle * newParticleArr = new Particle [sizeArr] ; 
+
+        for (int i = 0 ; i < sizeArr ; i++ ) { 
+            r = RandomFloat (0 , sum ) ;
+            
+
+            for (int j = 0 ; j < sizeArr ; j ++ ) { 
+                if (r >= spacePoints[j] ){
+        
+                newParticleArr[i] = particlesArr[j] ; 
+                break ; }
+            
+            }
+            
+        }
+
+        
+        
+   }
+
 
     
     string getColorSeq (float x , float y) { 
         
         int sequareLocationX = x / this->sequareWidth ; 
         int sequareLocationY = y / this->sequareWidth ; 
-        cout << sequareLocationX << endl ; 
-        cout << sequareLocationY << endl ; 
+    
         if (sequareLocationY % 2 == 0 ) { 
             if (sequareLocationX % 2 == 0 ) { 
                 return "white" ; 
@@ -156,6 +204,26 @@ class P_filter  {
         }
     }
 
+    void play() { 
+        char c ; 
+        while (true) {  
+            displayPoints() ;  
+            move()  ; 
+            updateWeight() ;
+            normalize() ;  
+            // sample() ; 
+
+            if (sizeArr <= 10) 
+            break ; 
+            cout << "press anyThing to continue , press n to exit" << endl ; 
+            cin >> c  ; 
+            if (c == 'n') {
+            cout << "the operation closed !" << endl ;
+            break; 
+            }
+        }
+    }
+
 
         
 };
@@ -165,11 +233,8 @@ int main ()
 
 { 
     P_filter app ; 
-    cout << app.getColorSeq(2 , 0) << endl ; 
-    cout << app.getColorSeq(2.1 , 1) << endl ; 
-    // app.displayPoints() ; 
-    // app.move()  ; 
-    // app.displayPoints() ; 
+    app.play() ; 
+    
 
     return 0 ; 
 }
