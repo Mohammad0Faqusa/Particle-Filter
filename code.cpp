@@ -26,6 +26,7 @@ class P_filter  {
 
         
         Particle* particlesArr ; 
+        Particle sensor ; 
 
     public : 
 
@@ -43,6 +44,13 @@ class P_filter  {
         this -> sequareWidth = mapWidth / numberOfSequares ; 
     }
 
+    void initRobotLocation() { 
+            sensor.x = RandomFloat(0 , mapWidth ) ; 
+            sensor.y = RandomFloat (0 , mapWidth); 
+            sensor.theta = RandomFloat(0 , 360 ) ; 
+            sensor.color = getColorSeq(sensor.x ,  sensor.y ) ; 
+    }
+
     void initParticlesArr() { 
         this -> sizeArr  = mapWidth * mapWidth ; 
         this -> particlesArr = new Particle[sizeArr] ; 
@@ -57,7 +65,28 @@ class P_filter  {
         }
     }
 
-    void Move() { 
+    
+    void calculate_X_Y(Particle & p , float stepMoved , float angleMoved , float angleRadian ) {
+            angleRadian = (sensor.theta + angleMoved) ; 
+            angleRadian > 360 ? angleRadian - 360 : angleRadian ; 
+
+            p.x = p.x + cos(angleRadian) ; 
+            p.y = p.y + cos(angleRadian) ; 
+
+
+            if (p.x > mapWidth )
+                p.x = mapWidth ; 
+            if (p.x < 0  ) 
+                p.x = 0 ; 
+
+            if (p.y > mapWidth )
+                p.y = mapWidth ; 
+            if (p.y < 0  ) 
+                p.y = 0 ; 
+
+            p.color = getColorSeq(p.x , p.y); 
+    }
+    void move() { 
         float stepMoved  ; 
         float angleMoved ; 
 
@@ -68,30 +97,18 @@ class P_filter  {
         cout << "Enter the new increasing angle value " << endl ; 
         cin >> angleMoved ; 
         float angleRadian ;
+        
+        calculate_X_Y(sensor ,stepMoved , angleMoved , angleRadian  ); 
 
         for (int i = 0 ; i < sizeArr ; i++ ) { 
-        
-            angleRadian = (particlesArr[i].theta + angleMoved) ; 
-            angleRadian > 360 ? angleRadian - 360 : angleRadian ; 
-
-            particlesArr[i].x = particlesArr[i].x + cos(angleRadian) ; 
-            particlesArr[i].y = particlesArr[i].y + cos(angleRadian) ; 
-
-            particlesArr[i].color = getColorSeq(particlesArr[i].x , particlesArr[i].y); 
-
-            if (particlesArr[i].x > mapWidth )
-                particlesArr[i].x = mapWidth ; 
-            if (particlesArr[i].x < 0  ) 
-                particlesArr[i].x = 0 ; 
-
-            if (particlesArr[i].y > mapWidth )
-                particlesArr[i].y = mapWidth ; 
-            if (particlesArr[i].y < 0  ) 
-                particlesArr[i].y = 0 ; 
-
+            calculate_X_Y(particlesArr[i] ,stepMoved , angleMoved , angleRadian  ); 
         }
 
         
+    }
+
+    void updateWeight () { 
+
     }
 
     
@@ -148,7 +165,8 @@ int main ()
     P_filter app ; 
     cout << app.getColorSeq(2.5 , 0) ; 
     app.displayPoints() ; 
-    app.Move()  ; 
+    app.move()  ; 
     app.displayPoints() ; 
+
     return 0 ; 
 }
