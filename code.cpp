@@ -67,12 +67,13 @@ class P_filter  {
     }
 
     
-    void calculate_X_Y(Particle & p , float stepMoved , float angleMoved , float angleRadian ) {
-            angleRadian = (sensor.theta + angleMoved) ; 
-            angleRadian > 360 ? angleRadian - 360 : angleRadian ; 
+    void calculate_X_Y(Particle & p , float stepMoved , float angleMoved ) {
+            float angleDegree = (sensor.theta + angleMoved) ; 
+            angleDegree > 360 ? angleDegree - 360 : angleDegree ; 
 
+            float angleRadian = angleDegree * (PI / 180) ; 
             p.x = p.x + cos(angleRadian) ; 
-            p.y = p.y + cos(angleRadian) ; 
+            p.y = p.y + sin(angleRadian) ; 
 
 
             if (p.x > mapWidth )
@@ -97,13 +98,12 @@ class P_filter  {
         cin >> stepMoved ; 
         cout << "Enter the new increasing angle value " << endl ; 
         cin >> angleMoved ; 
-        float angleRadian ;
         
-        calculate_X_Y(sensor ,stepMoved , angleMoved , angleRadian  ); 
+        calculate_X_Y(sensor ,stepMoved , angleMoved  ); 
         sensor.color = getColorSeq(sensor.x , sensor.y ) ; 
 
         for (int i = 0 ; i < sizeArr ; i++ ) { 
-            calculate_X_Y(particlesArr[i] ,stepMoved , angleMoved , angleRadian  ); 
+            calculate_X_Y(particlesArr[i] ,stepMoved , angleMoved  ); 
             particlesArr[i].color = getColorSeq(particlesArr[i].x , particlesArr[i].y ) ; 
         }
 
@@ -134,28 +134,30 @@ class P_filter  {
             sum += particlesArr[i].weight * sizeArr  ; 
             
         }
-        // int size2 ; 
 
-        // if (sizeArr > 0 && sizeArr <= 10)
-        // size2 = sizeArr ; 
-        // else 
-        // int size2 = sizeArr - 10  ; 
-
+        int size2 ; 
+        size2 = (int) (0.9 * sizeArr);
         float r ; 
-        Particle * newParticleArr = new Particle [sizeArr] ; 
+        Particle * newParticleArr = new Particle [size2] ; 
 
-        for (int i = 0 ; i < sizeArr ; i++ ) { 
+        for (int i = 0 ; i < size2 ; i++ ) { 
             r = RandomFloat (0 , sum ) ;
             
 
             for (int j = 0 ; j < sizeArr ; j ++ ) { 
-                if (r >= spacePoints[j] ){
+                if (r >= spacePoints[j]  && r <= spacePoints[j+1]){
         
                 newParticleArr[i] = particlesArr[j] ; 
                 break ; }
+                
             
             }
-            
+           
+        }
+
+        sizeArr = size2 ; 
+        for (int i = 0 ;  i < sizeArr ; i ++ ) { 
+            particlesArr[i] = newParticleArr[i] ; 
         }
 
         
@@ -204,15 +206,21 @@ class P_filter  {
         }
     }
 
+    void displayRobot () { 
+        cout << "The real location of the robot :" << endl ; 
+        cout << sensor.x << " " << sensor.y << " " << sensor.theta << " " <<  sensor.color << " " << endl ; 
+    }
+
     void play() { 
         char c ; 
         while (true) {  
             displayPoints() ;  
+            displayRobot() ; 
             move()  ; 
             updateWeight() ;
             normalize() ;  
-            // sample() ; 
-
+            sample() ; 
+            
             if (sizeArr <= 10) 
             break ; 
             cout << "press anyThing to continue , press n to exit" << endl ; 
