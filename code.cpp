@@ -41,7 +41,7 @@ class P_filter  {
         cout << "Enter the number of sequares in long width" << endl ; 
         cin >> sequareWidth ; 
 
-        this -> sequareWidth = mapWidth / numberOfSequares ; 
+        this -> numberOfSequares = mapWidth / sequareWidth ; 
     }
 
     void initRobotLocation() { 
@@ -99,12 +99,13 @@ class P_filter  {
         float angleRadian ;
         
         calculate_X_Y(sensor ,stepMoved , angleMoved , angleRadian  ); 
+        sensor.color = getColorSeq(sensor.x , sensor.y ) ; 
 
         for (int i = 0 ; i < sizeArr ; i++ ) { 
             calculate_X_Y(particlesArr[i] ,stepMoved , angleMoved , angleRadian  ); 
+            particlesArr[i].color = getColorSeq(particlesArr[i].x , particlesArr[i].y ) ; 
         }
 
-        
     }
 
     void updateWeight () { 
@@ -114,13 +115,14 @@ class P_filter  {
     
 
     
-    string getColorSeq (int x , int y) { 
+    string getColorSeq (float x , float y) { 
         
-        int XsequareLocation = (int)(x / sequareWidth) ; 
-        int YsequareLocation = (int)(y / sequareWidth) ; 
-
-        if (YsequareLocation % 2 == 0 ) { 
-            if (XsequareLocation % 2 == 0 ) { 
+        int sequareLocationX = x / this->sequareWidth ; 
+        int sequareLocationY = y / this->sequareWidth ; 
+        cout << sequareLocationX << endl ; 
+        cout << sequareLocationY << endl ; 
+        if (sequareLocationY % 2 == 0 ) { 
+            if (sequareLocationX % 2 == 0 ) { 
                 return "white" ; 
             }
             else { 
@@ -128,7 +130,7 @@ class P_filter  {
             }
         
         } else { 
-            if (XsequareLocation % 2 == 0 ) { 
+            if (sequareLocationX % 2 == 0 ) { 
                 return "black"; 
             }
             else { 
@@ -163,10 +165,11 @@ int main ()
 
 { 
     P_filter app ; 
-    cout << app.getColorSeq(2.5 , 0) ; 
-    app.displayPoints() ; 
-    app.move()  ; 
-    app.displayPoints() ; 
+    cout << app.getColorSeq(2 , 0) << endl ; 
+    cout << app.getColorSeq(2.1 , 1) << endl ; 
+    // app.displayPoints() ; 
+    // app.move()  ; 
+    // app.displayPoints() ; 
 
     return 0 ; 
 }
