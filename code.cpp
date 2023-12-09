@@ -1,94 +1,73 @@
-#include <iostream>
-#include <cmath> 
-#include <ctime> 
-using namespace std;
+#include <iostream> 
 
-struct Particle { 
-    float x, y, theta; 
-    float w; 
+
+
+
+using namespace std ; 
+
+struct Particle
+{
+    float x , y , theta ; 
+    string color ; 
+
 };
 
-float normalize(Particle* S) {
-    float sum = 0; 
-    for (int i = 0; i < 100; i++) {
-        sum += S[i].w;
-    }
-    for (int i = 0; i < 100; i++) {
-        S[i].w = S[i].w / sum;
-    }
 
-    return sum;
-}
+class P_filter  { 
+    private : 
+        float mapWidth ; 
+        float numberOfSequares ; 
+        float sequareWidth; 
 
-void initi(Particle* S) {
-   
-    for (int i = 0; i < 100; i++) {
-        S[i].x =  rand() % 8; 
-        S[i].y = rand() % 8  ; 
-        S[i].theta =  rand() % 360  ; 
-        S[i].w = 0.01 ; 
+    public : 
+
+    P_filter () { 
+        initMap() ; 
     }
 
-}
+    void initMap () {
+        cout << "Enter the width of the map " << endl ; 
+        cin >> mapWidth ; 
+        cout << "Enter the number of sequares in long width" << endl ; 
+        cin >> sequareWidth ; 
 
-void move(Particle* S , Particle U ) {
-
-    for (int i = 0; i < 100; i++) {
-        if ((S[i].x + U.x) < 100 )   
-            S[i].x += U.x ; 
-        else 
-            S[i].x = 100 ; 
-            
-        if ((S[i].y + U.y) < 100 )   
-            S[i].y += U.y ; 
-        else 
-            S[i].y = 100 ; 
-        if (S[i].theta + U.theta > 360  ) {
-            S[i].theta +=  U.theta ;
-            S[i].theta -= 360 ; }
-        else 
-            S[i].theta += U.theta ; 
+        this -> sequareWidth = mapWidth / numberOfSequares ; 
     }
 
     
-} 
+    string colorSeq (Particle p) { 
+        
+        int XsequareLocation = p.x / sequareWidth ; 
+        int YsequareLocation = p.y / sequareWidth ; 
 
-
-void sampleParticles(Particle* S) { 
-    Particle M [100] ; 
-    for (int i = 0 ; i < 100 ; i++ ) { 
-        M[i] = S[rand() % 100 ] ; 
-
+        if (YsequareLocation % 2 == 0 ) { 
+            if (XsequareLocation % 2 == 0 ) { 
+                return "white" ; 
+            }
+            else { 
+                return "black" ; 
+            }
+        
+        } else { 
+            if (XsequareLocation % 2 == 0 ) { 
+                return "black"; 
+            }
+            else { 
+                return "white" ; 
+            }
+        }
+        
     }
-    for (int i = 0 ; i < 100 ; i++ ) { 
-        S[i] = M[i] ; 
-
-    }
-    
-}
-
-int main() {
-    Particle S[100] ; 
+        
+};
 
 
-    initi(S) ; 
-    for (int i = 0 ; i < 5 ; i++ ) { 
-        cout << S[i].x << " " << S[i].y << " " << S[i].theta << endl ; 
-    }
-    Particle U ; 
-    U.x = 4 ; 
-    U.y = 0 ; 
-    U.theta = 10 ; 
-    move(S , U ) ; 
+int main () 
 
-     for (int i = 0 ; i < 5 ; i++ ) { 
-        cout << S[i].x << " " << S[i].y << " " << S[i].theta << endl ; 
-    }
+{ 
+    P_filter app ; 
+    Particle p = { 8 , 4 , 100 , "" };
 
-    cout << "update done ! " ; 
-
+    cout << app.colorSeq(p) ;
     return 0 ; 
-
-    
-} 
-
+}
