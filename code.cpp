@@ -106,6 +106,7 @@ class P_filter  {
     }
 
     void updateWeight () { 
+        sumWeight = 0 ; 
         for (int i = 0 ; i < sizeArr ; i++ ) { 
             if (particlesArr[i].color == sensor.color) 
                 particlesArr[i].weight = 0.7 ;
@@ -118,32 +119,38 @@ class P_filter  {
 
    void normalize() { 
     for (int i = 0 ; i < sizeArr ; i++ ) { 
-        particlesArr[i].weight = particlesArr[i].weight / sumWeight ; 
+        particlesArr[i].weight = particlesArr[i].weight / (float)sumWeight ; 
     }
    }
-   void sample() {
-        Particle* resampledParticles = new Particle[sizeArr];
+    void sample() {
+    Particle* resampledParticles = new Particle[sizeArr];
 
-        // Roulette wheel resampling
-        float cumulativeWeight = 0.0;
-        float step = sumWeight / sizeArr;
-        float pointer = RandomFloat(0, step);
+    // Calculate the total weight of all particles
+    
 
-        for (int i = 0; i < sizeArr; ++i) {
-            cumulativeWeight += particlesArr[i].weight;
-            while (pointer < cumulativeWeight) {
-                resampledParticles[i] = particlesArr[i];
-                pointer += step;
-            }
+    // Roulette wheel resampling based on particle weights
+    float cumulativeWeight = 0.0;
+    float pointer = RandomFloat(0, sumWeight);
+    int resampledIndex = 0;
+
+    for (int i = 0; i < sizeArr; ++i) {
+        cumulativeWeight += particlesArr[i].weight;
+
+        // If the pointer falls within the cumulative weight, select the particle
+        while (pointer > cumulativeWeight && resampledIndex < sizeArr - 1) {
+            resampledIndex++;
+            pointer -= sumWeight ; // Adjust the pointer to stay within the weight range
         }
 
-        // Deallocate old array
-        delete[] particlesArr;
-
-        // Update particlesArr with resampled particles
-        particlesArr = resampledParticles;
+        resampledParticles[resampledIndex] = particlesArr[i];
     }
 
+    // Deallocate old array
+    delete[] particlesArr;
+
+    // Update particlesArr with resampled particles
+    particlesArr = resampledParticles;
+}
 
 
 
@@ -193,32 +200,29 @@ class P_filter  {
         cout << sensor.x << " " << sensor.y << " " << sensor.theta << " " <<  sensor.color << " " << endl ; 
     }
 
-    void report(){   
-        float meanParticleX, meanParticleY, varParticleX, varParticleY;
+    void report() {
+    float meanParticleX = 0, meanParticleY = 0, varParticleX = 0, varParticleY = 0;
 
-        float sum=0;
-	    for (int i=0;i<sizeArr ;i++)
-	    	sum+=particlesArr[i].x;
-            meanParticleX=sum/(float)sizeArr ;
+    // Calculate mean
+    for (int i = 0; i < sizeArr; i++) {
+        meanParticleX += particlesArr[i].x;
+        meanParticleY += particlesArr[i].y;
+    }
 
-	    sum=0;
-	    for (int i=0;i<sizeArr ;i++)
-	    	sum+=particlesArr[i].y;
-            meanParticleY=sum/(float)sizeArr ;
+    meanParticleX /= sizeArr;
+    meanParticleY /= sizeArr;
 
-	    sum=0;
-	    for (int i=0;i<sizeArr ;i++)
-	    	sum+= ((particlesArr[i].x - meanParticleX)*(particlesArr[i].x - meanParticleX));
+    // Calculate variance
+    for (int i = 0; i < sizeArr; i++) {
+        varParticleX += (particlesArr[i].x - meanParticleX) * (particlesArr[i].x - meanParticleX);
+        varParticleY += (particlesArr[i].y - meanParticleY) * (particlesArr[i].y - meanParticleY);
+    }
 
-            varParticleX=sqrt(sum/(float)sizeArr) ;
-	
-	    sum=0;
-	    for (int i=0;i<sizeArr ;i++)
-	        sum+=((particlesArr[i].y - meanParticleY)*(particlesArr[i].y - meanParticleY));
+    varParticleX = sqrt(varParticleX / sizeArr);
+    varParticleY = sqrt(varParticleY / sizeArr);
 
-            varParticleY=sqrt(sum/((float)sizeArr )) ;	
-  
-	    cout<< "the mean Particle ( " << meanParticleX<<" , "<<meanParticleY<<") varParticle ( "<<varParticleX<<", "<<varParticleY<<")\n";
+    cout << "the mean Particle ( " << meanParticleX << " , " << meanParticleY << ") varParticle ( " << varParticleX
+         << ", " << varParticleY << ")\n";
 }
 
 
@@ -255,15 +259,29 @@ class P_filter  {
         float stepMoved ; 
         float angleMoved ; 
 
-        for (int i=0; i<=100; i++){
+        for (int i=0; i<=2; i++){
             float robotX, robotY, displacement, angle;
-            readCSVLine("./uploads/robot.csv", i+2, sensor.x, sensor.y, stepMoved, angleMoved);
-            move( stepMoved , angleMoved ); 
+            readCSVLine("./robot.csv", i+2, sensor.x, sensor.y, stepMoved, angleMoved);
+            cout << "check move" ;
+            cin >> c ; 
+            move( stepMoved , angleMoved );
+            // displayPoints() ; 
+            cout<< "move checked" ; 
+            report() ;
+
+            cin >> c  ; 
+            // displayPoints() ;  
             displayRobot() ; 
             report() ;
             updateWeight() ;
-            normalize() ;  
+            normalize() ;
+            cout<< "check sample" ; 
+            cin >> c  ;   
             sample() ; 
+            report() ;
+
+            cout<< "sample checked" ; 
+            cin >> c  ; 
        
     }
     } 
