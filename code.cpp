@@ -122,36 +122,45 @@ class P_filter  {
         particlesArr[i].weight = particlesArr[i].weight / (float)sumWeight ; 
     }
    }
-    void sample() {
-    Particle* resampledParticles = new Particle[sizeArr];
 
-    // Calculate the total weight of all particles
-    
 
-    // Roulette wheel resampling based on particle weights
-    float cumulativeWeight = 0.0;
-    float pointer = RandomFloat(0, sumWeight);
-    int resampledIndex = 0;
-
-    for (int i = 0; i < sizeArr; ++i) {
-        cumulativeWeight += particlesArr[i].weight;
-
-        // If the pointer falls within the cumulative weight, select the particle
-        while (pointer > cumulativeWeight && resampledIndex < sizeArr - 1) {
-            resampledIndex++;
-            pointer -= sumWeight ; // Adjust the pointer to stay within the weight range
+    void sample() { 
+        float * spacePoints = new float [sizeArr] ; 
+        float sum  = 0 ; 
+        for (int i = 0 ; i < sizeArr ; i++ ) { 
+            spacePoints[i] = sum ; 
+            sum += particlesArr[i].weight * sizeArr  ; 
+            
         }
 
-        resampledParticles[resampledIndex] = particlesArr[i];
-    }
+        
+        float r ; 
+        Particle * newParticleArr = new Particle [sizeArr] ; 
 
-    // Deallocate old array
-    delete[] particlesArr;
+        for (int i = 0 ; i < sizeArr ; i++ ) { 
+            r = RandomFloat (0 , sum ) ;
+            
 
-    // Update particlesArr with resampled particles
-    particlesArr = resampledParticles;
-}
+            for (int j = 0 ; j < sizeArr ; j ++ ) { 
+                if (r >= spacePoints[j]  && r <= spacePoints[j+1]){
+        
+                newParticleArr[i] = particlesArr[j] ; 
+                break ; }
+                
+            
+            }
+           
+        }
+        if(sizeArr > 2)
+        sizeArr-- ; 
 
+        for (int i = 0 ;  i < sizeArr ; i ++ ) { 
+            particlesArr[i] = newParticleArr[i] ; 
+        }
+
+        
+        
+   }
 
 
     
@@ -259,30 +268,15 @@ class P_filter  {
         float stepMoved ; 
         float angleMoved ; 
 
-        for (int i=0; i<=2; i++){
+        for (int i=0; i<=500; i++){
             float robotX, robotY, displacement, angle;
             readCSVLine("./robot.csv", i+2, sensor.x, sensor.y, stepMoved, angleMoved);
-            cout << "check move" ;
-            cin >> c ; 
-            move( stepMoved , angleMoved );
-            // displayPoints() ; 
-            cout<< "move checked" ; 
-            report() ;
-
-            cin >> c  ; 
-            // displayPoints() ;  
+            move( stepMoved , angleMoved ); 
             displayRobot() ; 
             report() ;
             updateWeight() ;
-            normalize() ;
-            cout<< "check sample" ; 
-            cin >> c  ;   
-            sample() ; 
-            report() ;
-
-            cout<< "sample checked" ; 
-            cin >> c  ; 
-       
+            normalize() ;  
+            sample() ;
     }
     } 
 }; 
